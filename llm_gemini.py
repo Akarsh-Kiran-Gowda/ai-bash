@@ -40,7 +40,7 @@ class GeminiCommandGenerator:
         # Create model with system instruction
         system_prompt = get_system_prompt(system_context)
         self.model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
+            model_name="gemini-pro",
             system_instruction=system_prompt
         )
     
