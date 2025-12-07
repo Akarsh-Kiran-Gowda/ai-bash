@@ -40,8 +40,50 @@ class GeminiCommandGenerator:
         # Store system prompt to prepend to user messages
         self.system_prompt = get_system_prompt(system_context)
         
+        # Try to find an available model
+        available_model = self._get_available_model()
+        
         # Create model without system instruction (for compatibility)
-        self.model = genai.GenerativeModel(model_name="gemini-pro")
+        self.model = genai.GenerativeModel(model_name=available_model)
+    
+    def _get_available_model(self):
+        """
+        Find the best available Gemini model for the API key.
+        
+        Returns:
+            str: Model name to use
+        """
+        try:
+            # List all available models
+            available = []
+            for m in genai.list_models():
+                if "generateContent" in m.supported_generation_methods:
+                    available.append(m.name)
+            
+            # Preference order
+            preferred = [
+                "models/gemini-1.5-flash",
+                "models/gemini-1.5-pro", 
+                "models/gemini-pro",
+                "gemini-1.5-flash",
+                "gemini-1.5-pro",
+                "gemini-pro"
+            ]
+            
+            # Return first match
+            for model in preferred:
+                if model in available:
+                    return model.replace("models/", "")
+            
+            # Fallback to first available
+            if available:
+                return available[0].replace("models/", "")
+                
+        except Exception:
+            pass
+        
+        # Ultimate fallback
+        return "gemini-pro"
     
     def generate_command(self, user_request):
         """
