@@ -37,12 +37,11 @@ class GeminiCommandGenerator:
         # Configure Gemini
         genai.configure(api_key=api_key)
         
-        # Create model with system instruction
-        system_prompt = get_system_prompt(system_context)
-        self.model = genai.GenerativeModel(
-            model_name="gemini-pro",
-            system_instruction=system_prompt
-        )
+        # Store system prompt to prepend to user messages
+        self.system_prompt = get_system_prompt(system_context)
+        
+        # Create model without system instruction (for compatibility)
+        self.model = genai.GenerativeModel(model_name="gemini-pro")
     
     def generate_command(self, user_request):
         """
@@ -55,11 +54,12 @@ class GeminiCommandGenerator:
             str: Generated shell command (or ERROR message)
         """
         try:
-            # Format user prompt
+            # Format user prompt with system prompt prepended
             user_prompt = get_user_prompt(user_request)
+            full_prompt = f"{self.system_prompt}\n\n{user_prompt}"
             
             # Generate command
-            response = self.model.generate_content(user_prompt)
+            response = self.model.generate_content(full_prompt)
             command = response.text.strip()
             
             # Sanitize output (remove markdown, extra whitespace)
