@@ -48,6 +48,8 @@ EXECUTION RULES:
 - Assume the command will be shown to the user for approval before execution.
 - When using recursive commands (find, grep, du), suppress permission errors 
   using 2>/dev/null unless explicitly requested otherwise.
+- For commands that may produce partial results due to permissions (find, grep, du),
+  append || true to prevent shell failure on partial traversal errors.
 
 SPECIAL CASES:
 - If the intent is to "change directory", output:

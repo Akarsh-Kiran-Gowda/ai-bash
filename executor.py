@@ -23,6 +23,7 @@ def execute_command(command, shell="bash"):
     """
     try:
         # Execute command using bash
+        # Don't use check=True - many tools succeed with non-zero exit codes
         result = subprocess.run(
             [shell, "-c", command],
             capture_output=True,
@@ -30,7 +31,14 @@ def execute_command(command, shell="bash"):
             timeout=30  # 30 second timeout
         )
         
-        success = result.returncode == 0
+        # Intelligent success determination:
+        # - If we got output, treat as success even with non-zero exit code
+        # - This handles tools like find, grep, rsync that exit non-zero on permission errors
+        # - Only fail if no output AND non-zero exit code
+        has_output = bool(result.stdout.strip())
+        exit_ok = result.returncode == 0
+        
+        success = exit_ok or has_output
         output = result.stdout
         error = result.stderr
         
