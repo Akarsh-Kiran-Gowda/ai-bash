@@ -60,24 +60,25 @@ class GeminiCommandGenerator:
                 if "generateContent" in m.supported_generation_methods:
                     available.append(m.name)
             
-            # Preference order
+            # Preference order (newer models first)
             preferred = [
+                "models/gemini-2.5-flash",
+                "models/gemini-2.5-pro",
+                "models/gemini-flash-latest",
+                "models/gemini-pro-latest",
                 "models/gemini-1.5-flash",
                 "models/gemini-1.5-pro", 
-                "models/gemini-pro",
-                "gemini-1.5-flash",
-                "gemini-1.5-pro",
-                "gemini-pro"
+                "models/gemini-pro"
             ]
             
-            # Return first match
+            # Return first match (keep the full model name)
             for model in preferred:
                 if model in available:
-                    return model.replace("models/", "")
+                    return model
             
             # Fallback to first available
             if available:
-                return available[0].replace("models/", "")
+                return available[0]
                 
         except Exception:
             pass
